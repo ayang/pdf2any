@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 '''Text Span object based on PDF raw dict extracted with ``PyMuPDF``.
 
 Data structure for Span refer to
@@ -35,9 +33,9 @@ from docx.oxml.ns import qn
 from lxml import etree
 from .Char import Char
 from ..common.Element import Element
-from ..common.share import RectType
+from ..common.share import (RectType, rgb_value, rgb_component, decode)
 from ..common import constants
-from ..common import share, docx
+from ..common import docx
 from ..shape.Shape import Shape
 
 
@@ -56,8 +54,7 @@ class TextSpan(Element):
         # font metrics
         # line_height is the standard single line height used in relative line spacing,
         # while exact line spacing is used when line_height==-1 by default.
-        font_name = raw.get('font', '')
-        self.font = bytes(ord(c) for c in font_name).decode() # in case unicode in font name
+        self.font = decode(raw.get('font', '')) # in case unicode in font name
         self.size = raw.get('size', 12.0)
         self.ascender = raw.get('ascender', 1.0)
         self.descender = raw.get('descender', 0.0)
@@ -76,7 +73,7 @@ class TextSpan(Element):
         super().__init__(raw)
 
         # in rare case, the font is unamed, so change font and update bbox accordingly
-        if 'UNNAMED' in self.font.upper():
+        if self.chars and 'UNNAMED' in self.font.upper():
             self._change_font_and_update_bbox(constants.DEFAULT_FONT_NAME)
 
 
@@ -109,8 +106,8 @@ class TextSpan(Element):
         In corner case, where the PDF file containing unnamed and not embedded fonts, the span bbox
         extracted from ``PyMuPDF`` is not correct. ``PyMuPDF`` provides feature to replace these
         unnamed fonts with specified fonts, then extract correct bbox from the updated PDF. Since we
-        care less about the original PDF itself but its layout, the idea here is to set a default font
-        for text spans with unnamed fonts, and estimate the updated bbox with method from
+        care less about the original PDF itself but its layout, the idea here is to set a default
+        font for text spans with unnamed fonts, and estimate the updated bbox with method from
         ``fitz.TextWriter``.
 
         Args:
@@ -215,7 +212,6 @@ class TextSpan(Element):
         # Note the case bool(intsec)=True but intsec.get_area()=0
         if intsec.is_empty: return [self]
 
-
         # yes, then split spans:
         # - add new style to the intersection part
         # - keep the original style for the rest
@@ -242,7 +238,6 @@ class TextSpan(Element):
         pos_end = max(pos+length, 0) # max() is used in case: pos=-1, length=0
 
         # split span with the intersection: span-intersection-span
-        #
         # left part if exists
         if pos > 0:
             if horizontal:
@@ -290,7 +285,7 @@ class TextSpan(Element):
             return False
 
         # set hyperlink
-        elif rect.equal_to_type(RectType.HYPERLINK):
+        if rect.equal_to_type(RectType.HYPERLINK):
             self.style.append({
                 'type': rect.type,
                 'color': rect.color,
@@ -312,7 +307,7 @@ class TextSpan(Element):
         # highlight: both the rect height and overlap must be large enough
         if h_rect >= 0.5*h_span:
             # In general, highlight color isn't white
-            if rect.color != share.rgb_value((1,1,1)) and self.get_main_bbox(rect, constants.FACTOR_MAJOR):
+            if rect.color != rgb_value((1,1,1)) and self.get_main_bbox(rect, constants.FACTOR_MAJOR):
                 rect.type = RectType.HIGHLIGHT
 
         # near to bottom of span? yes, underline
@@ -363,12 +358,13 @@ class TextSpan(Element):
 
 
     def make_docx(self, paragraph):
-        '''Add text span to a docx paragraph, and set text style, e.g. font, color, underline, hyperlink, etc.
+        '''Add text span to a docx paragraph, and set text style, e.g.
+        font, color, underline, hyperlink, etc.
 
         .. note::
-            Hyperlink and its style is parsed separately from pdf. For instance, regarding a general hyperlink with an
-            underline, the text and uri is parsed as hyperlink itself, while the underline is treated as a normal text
-            style.
+            Hyperlink and its style is parsed separately from pdf. For instance, regarding a general
+            hyperlink with an underline, the text and uri is parsed as hyperlink itself, while the
+            underline is treated as a normal text style.
         '''
         # Create hyperlink in particular, otherwise add a run directly
         for style in self.style:
@@ -449,7 +445,7 @@ class TextSpan(Element):
         font_name = self.font
         docx_run.font.name = font_name
         docx_run._element.rPr.rFonts.set(qn('w:eastAsia'), font_name) # set font for chinese characters
-        docx_run.font.color.rgb = RGBColor(*share.rgb_component(self.color))
+        docx_run.font.color.rgb = RGBColor(*rgb_component(self.color))
 
         # font size
         # NOTE: only x.0 and x.5 is accepted in docx, so set character scaling accordingly

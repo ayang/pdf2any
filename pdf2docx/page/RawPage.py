@@ -258,7 +258,9 @@ class RawPage(BasePage, ABC):
 
         if num_col==1:
             x0, y0, x1, y1 = elements.bbox
-            column = Column((X0, y0, X1, y1))
+            # Note: do not use Column((X0, y0, X1, y1)) directly here. We have to set final bbox
+            # per update_bbox to avoid double rotation in case page rotation exists.
+            column = Column().update_bbox((X0, y0, X1, y1)) # this is final bbox, must use update_bbox
             column.add_elements(elements)
             section = Section(space=0, columns=[column])
             before_space = y0 - y_ref
@@ -268,10 +270,10 @@ class RawPage(BasePage, ABC):
             m0, n0, m1, n1 = cols[1].bbox
             u = (u1+m0)/2.0
 
-            column_1 = Column((X0, v0, u, v1))
+            column_1 = Column().update_bbox((X0, v0, u, v1))
             column_1.add_elements(elements)
 
-            column_2 = Column((u, n0, X1, n1))
+            column_2 = Column().update_bbox((u, n0, X1, n1))
             column_2.add_elements(elements)
 
             section = Section(space=0, columns=[column_1, column_2])

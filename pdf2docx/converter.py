@@ -148,6 +148,7 @@ class Converter:
             'template_file'                  : None,   # html template file
             'output_image_dir'               : None,   # output image directory
             'raw_exceptions'                 : False,  # Don't swallow exceptions
+            'list_not_table'                 : True,   # Avoid treating bullet list as table.
         }
 
     # -----------------------------------------------------------------------

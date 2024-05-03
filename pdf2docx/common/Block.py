@@ -14,7 +14,7 @@ class Block(Element):
         raw (dict): initialize object from raw properties.
         parent (optional): parent object that this block belongs to.
     '''
-    def __init__(self, raw:dict=None, parent=None):        
+    def __init__(self, raw:dict=None, parent=None):
         self._type = BlockType.UNDEFINED
 
         # horizontal spacing
@@ -25,11 +25,11 @@ class Block(Element):
         self.first_line_space = raw.get('first_line_space', 0.0)
 
         # RELATIVE position of tab stops
-        self.tab_stops = raw.get('tab_stops', []) 
+        self.tab_stops = raw.get('tab_stops', [])
 
         # vertical spacing
         self.before_space = raw.get('before_space', 0.0)
-        self.after_space = raw.get('after_space', 0.0)        
+        self.after_space = raw.get('after_space', 0.0)
         self.line_space = raw.get('line_space', 0.0)
         self.line_space_type = raw.get('line_space_type', 1) # 0-exactly, 1-relatively
 
@@ -38,19 +38,19 @@ class Block(Element):
 
     @property
     def is_text_block(self):
-        '''Whether test block.'''        
-        return self._type==BlockType.TEXT    
-    
+        '''Whether test block.'''
+        return self._type==BlockType.TEXT
+
     @property
     def is_inline_image_block(self):
         '''Whether inline image block.'''
         return self._type==BlockType.IMAGE
-    
+
     @property
     def is_float_image_block(self):
         '''Whether float image block.'''
         return self._type==BlockType.FLOAT_IMAGE
-    
+
     @property
     def is_image_block(self):
         '''Whether inline or float image block.'''
@@ -103,8 +103,8 @@ class Block(Element):
         return TextAlignment.LEFT
 
     def parse_horizontal_spacing(self, bbox, *args):
-        """Set left alignment, and calculate left space. 
-        
+        """Set left alignment, and calculate left space.
+
         Override by :obj:`pdf2docx.text.TextBlock`.
 
         Args:
@@ -115,7 +115,7 @@ class Block(Element):
         idx, f = (0, 1.0) if self.is_horizontal_text else (3, -1.0)
         self.alignment = TextAlignment.LEFT
         self.left_space = (self.bbox[idx] - bbox[idx]) * f
-       
+
 
     def store(self):
         '''Store attributes in json format.'''
@@ -142,7 +142,7 @@ class Block(Element):
             NotImplementedError
         """
         raise NotImplementedError
-    
+
 
     def make_html(self, *args, **kwargs):
         raise NotImplementedError

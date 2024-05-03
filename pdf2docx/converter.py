@@ -24,7 +24,7 @@ if v < [1,19,0] or [1,23,8]<v<[1,23,16]:
 
 # logging
 logging.basicConfig(
-    level=logging.INFO, 
+    level=logging.INFO,
     format="[%(levelname)s] %(message)s")
 
 # default html template
@@ -58,17 +58,17 @@ default_html_template = '''
 </body>
 </html>
 '''
-        
+
 
 
 class Converter:
     '''The ``PDF`` to ``docx`` converter.
-    
+
     * Read PDF file with ``PyMuPDF`` to get raw layout data page by page, including text,
       image, drawing and its properties, e.g. boundary box, font, size, image width, height.
     * Analyze layout in document level, e.g. page header, footer and margin.
-    * Parse page layout to docx structure, e.g. paragraph and its properties like indentation, 
-      spacing, text alignment; table and its properties like border, shading, merging. 
+    * Parse page layout to docx structure, e.g. paragraph and its properties like indentation,
+      spacing, text alignment; table and its properties like border, shading, merging.
     * Finally, generate docx with ``python-docx``.
     '''
 
@@ -100,7 +100,7 @@ class Converter:
 
 
     @property
-    def fitz_doc(self): return self._fitz_doc    
+    def fitz_doc(self): return self._fitz_doc
 
     @property
     def pages(self): return self._pages
@@ -147,6 +147,7 @@ class Converter:
             'remove_header_footer'           : False,  # remove header and footer if True
             'template_file'                  : None,   # html template file
             'output_image_dir'               : None,   # output image directory
+            'raw_exceptions'                 : False,  # Don't swallow exceptions
         }
 
     # -----------------------------------------------------------------------
@@ -163,7 +164,7 @@ class Converter:
             start (int, optional): First page to process. Defaults to 0, the first page.
             end (int, optional): Last page to process. Defaults to None, the last page.
             pages (list, optional): Range of page indexes to parse. Defaults to None.
-            kwargs (dict, optional): Configuration parameters. 
+            kwargs (dict, optional): Configuration parameters.
         '''
         return self.load_pages(start, end, pages) \
             .parse_document(**kwargs) \
@@ -171,9 +172,9 @@ class Converter:
 
 
     def load_pages(self, start:int=0, end:int=None, pages:list=None):
-        '''Step 1 of converting process: open PDF file with ``PyMuPDF``, 
+        '''Step 1 of converting process: open PDF file with ``PyMuPDF``,
         especially for password encrypted file.
-        
+
         Args:
             start (int, optional): First page to process. Defaults to 0, the first page.
             end (int, optional): Last page to process. Defaults to None, the last page.
@@ -199,17 +200,17 @@ class Converter:
             self._pages[i].skip_parsing = False
 
         return self
-    
+
 
     def parse_document(self, **kwargs):
         '''Step 2 of converting process: analyze whole document, e.g. page section,
         header/footer and margin.'''
         logging.info(self._color_output('[2/4] Analyzing document...'))
-        
+
         self._pages.parse(self.fitz_doc, **kwargs)
         return self
 
-    
+
     def parse_pages(self, **kwargs):
         '''Step 3 of converting process: parse pages, e.g. paragraph, image and table.'''
         logging.info(self._color_output('[3/4] Parsing pages...'))
@@ -222,6 +223,8 @@ class Converter:
             try:
                 page.parse(**kwargs)
             except Exception as e:
+                if kwargs['raw_exceptions']:
+                    raise
                 if not kwargs['debug'] and kwargs['ignore_page_error']:
                     logging.error('Ignore page %d due to parsing page error: %s', pid, e)
                 else:
@@ -232,7 +235,7 @@ class Converter:
 
     def make_docx(self, filename_or_stream=None, **kwargs):
         '''Step 4 of converting process: create docx file with converted pages.
-        
+
         Args:
             filename_or_stream (str, file-like): docx file to write.
             kwargs (dict, optional): Configuration parameters.
@@ -254,8 +257,8 @@ class Converter:
             else:
                 raise ConversionException("Please specify a docx file name or a file-like object to write.")
 
-        # create page by page        
-        docx_file = Document() 
+        # create page by page
+        docx_file = Document()
         num_pages = len(parsed_pages)
         for i, page in enumerate(parsed_pages, start=1):
             if not page.finalized: continue # ignore unparsed pages
@@ -264,6 +267,8 @@ class Converter:
             try:
                 page.make_docx(docx_file)
             except Exception as e:
+                if kwargs['raw_exceptions']:
+                    raise
                 if not kwargs['debug'] and kwargs['ignore_page_error']:
                     logging.error('Ignore page %d due to making page error: %s', pid, e)
                 else:
@@ -351,7 +356,7 @@ class Converter:
         if not parsed_pages:
             raise ConversionException('No parsed pages. Please parse page first.')
 
-        # create page by page        
+        # create page by page
         num_pages = len(parsed_pages)
         dom_pages = []
         for i, page in enumerate(parsed_pages, start=1):
@@ -373,10 +378,10 @@ class Converter:
 
     def make_html(self, html_filename=None, template_file=None, **kwargs):
         '''Step 4 of converting process: create html file with converted pages.
-        
+
         Args:
             html_filename (str, file-like): html file to write.
-            kwargs (dict, optional): Configuration parameters. 
+            kwargs (dict, optional): Configuration parameters.
         '''
         logging.info(self._color_output('[4/4] Creating pages...'))
 
@@ -440,7 +445,7 @@ class Converter:
         if not self._pages:
             num = data.get('page_cnt', 100)
             self._pages.reset([Page(id=i, skip_parsing=True) for i in range(num)])
-        
+
         # restore pages
         for raw_page in data.get('pages', []):
             idx = raw_page.get('id', -1)
@@ -451,7 +456,7 @@ class Converter:
         '''Write parsed pages to specified JSON file.'''
         with open(filename, 'w', encoding='utf-8') as f:
             f.write(json.dumps(self.store(), indent=4))
-    
+
 
     def deserialize(self, filename:str):
         '''Load parsed pages from specified JSON file.'''
@@ -466,7 +471,7 @@ class Converter:
 
     def debug_page(self, i:int, docx_filename:str=None, debug_pdf:str=None, layout_file:str=None, **kwargs):
         '''Parse, create and plot single page for debug purpose.
-        
+
         Args:
             i (int): Page index to convert.
             docx_filename (str): docx filename to write to.
@@ -487,7 +492,7 @@ class Converter:
 
         # parse and create docx
         self.convert(docx_filename, pages=[i], **kwargs)
-        
+
         # layout information for debugging
         self.serialize(layout_file)
 
@@ -501,18 +506,18 @@ class Converter:
             end (int, optional): Last page to process. Defaults to None, the last page.
             pages (list, optional): Range of page indexes. Defaults to None.
             kwargs (dict, optional): Configuration parameters. Defaults to None.
-        
-        Refer to :py:meth:`~pdf2docx.converter.Converter.default_settings` for detail of 
+
+        Refer to :py:meth:`~pdf2docx.converter.Converter.default_settings` for detail of
         configuration parameters.
-        
+
         .. note::
             Change extension from ``pdf`` to ``docx`` if ``docx_file`` is None.
-        
+
         .. note::
             * ``start`` and ``end`` is counted from zero if ``--zero_based_index=True`` (by default).
             * Start from the first page if ``start`` is omitted.
             * End with the last page if ``end`` is omitted.
-        
+
         .. note::
             ``pages`` has a higher priority than ``start`` and ``end``. ``start`` and ``end`` works only
             if ``pages`` is omitted.
@@ -529,14 +534,14 @@ class Converter:
         if pages and settings['multi_processing']:
             raise ConversionException('Multi-processing works for continuous pages '
                                     'specified by "start" and "end" only.')
-        
+
         # convert page by page
         if settings['multi_processing']:
             self._convert_with_multi_processing(docx_filename, start, end, **settings)
         else:
             self.parse(start, end, pages, **settings).make_docx(docx_filename, **settings)
 
-        logging.info('Terminated in %.2fs.', perf_counter()-t0)        
+        logging.info('Terminated in %.2fs.', perf_counter()-t0)
 
 
     def convert_html(self, html_filename: Union[str, IO[AnyStr]] = None, start: int = 0, end: int = None, pages: list = None,
@@ -549,18 +554,18 @@ class Converter:
             end (int, optional): Last page to process. Defaults to None, the last page.
             pages (list, optional): Range of page indexes. Defaults to None.
             kwargs (dict, optional): Configuration parameters. Defaults to None.
-        
-        Refer to :py:meth:`~pdf2docx.converter.Converter.default_settings` for detail of 
+
+        Refer to :py:meth:`~pdf2docx.converter.Converter.default_settings` for detail of
         configuration parameters.
-        
+
         .. note::
             Change extension from ``pdf`` to ``docx`` if ``docx_file`` is None.
-        
+
         .. note::
             * ``start`` and ``end`` is counted from zero if ``--zero_based_index=True`` (by default).
             * Start from the first page if ``start`` is omitted.
             * End with the last page if ``end`` is omitted.
-        
+
         .. note::
             ``pages`` has a higher priority than ``start`` and ``end``. ``start`` and ``end`` works only
             if ``pages`` is omitted.
@@ -577,14 +582,14 @@ class Converter:
         if pages and settings['multi_processing']:
             raise ConversionException('Multi-processing works for continuous pages '
                                     'specified by "start" and "end" only.')
-        
+
         # convert page by page
         if settings['multi_processing'] and False:
             self._convert_with_multi_processing(html_filename, start, end, **settings)
         else:
             self.parse(start, end, pages, **settings).make_html(html_filename, **settings)
 
-        logging.info('Terminated in %.2fs.', perf_counter()-t0)        
+        logging.info('Terminated in %.2fs.', perf_counter()-t0)
 
 
     def extract_tables(self, start:int=0, end:int=None, pages:list=None, **kwargs):
@@ -595,7 +600,7 @@ class Converter:
             end (int, optional): Last page to process. Defaults to None, the last page.
             pages (list, optional): Range of page indexes. Defaults to None.
             kwargs (dict, optional): Configuration parameters. Defaults to None.
-        
+
         Returns:
             list: A list of parsed table content.
         '''
@@ -611,7 +616,7 @@ class Converter:
 
         return tables
 
-    
+
     def _convert_with_multi_processing(self, docx_filename:str, start:int, end:int, **kwargs):
         '''Parse and create pages based on page indexes with multi-processing.
 
@@ -620,22 +625,22 @@ class Converter:
             https://pymupdf.readthedocs.io/en/latest/faq.html#multiprocessing
         '''
         # make vectors of arguments for the processes
-        cpu = min(kwargs['cpu_count'], cpu_count()) if kwargs['cpu_count'] else cpu_count()        
+        cpu = min(kwargs['cpu_count'], cpu_count()) if kwargs['cpu_count'] else cpu_count()
         prefix = 'pages' # json file writing parsed pages per process
-        vectors = [(i, cpu, start, end, self.filename_pdf, self.password, 
+        vectors = [(i, cpu, start, end, self.filename_pdf, self.password,
                             kwargs, f'{prefix}-{i}.json') for i in range(cpu)]
 
         # start parsing processes
         pool = Pool()
         pool.map(self._parse_pages_per_cpu, vectors, 1)
-        
+
         # restore parsed page data
         for i in range(cpu):
             filename = f'{prefix}-{i}.json'
-            if not os.path.exists(filename): continue            
+            if not os.path.exists(filename): continue
             self.deserialize(filename)
             os.remove(filename)
-        
+
         # create docx file
         self.make_docx(docx_filename, **kwargs)
 
@@ -643,21 +648,21 @@ class Converter:
     @staticmethod
     def _parse_pages_per_cpu(vector):
         '''Render a page range of a document.
-        
+
         Args:
             vector (list): A list containing required parameters.
-                * 0  : segment number for current process                
+                * 0  : segment number for current process
                 * 1  : count of CPUs
                 * 2,3: whole pages range to process
                 * 4  : pdf filename
                 * 5  : password for encrypted pdf
                 * 6  : configuration parameters
                 * 7  : json filename storing parsed results
-        '''        
+        '''
         # recreate the arguments
         idx, cpu, s, e, pdf_filename, password, kwargs, json_filename = vector
 
-        # open pdf to get page count: all pages are marked to parse temporarily 
+        # open pdf to get page count: all pages are marked to parse temporarily
         # since don't know which pages to parse for this moment
         cv = Converter(pdf_filename, password)
         cv.load_pages()
@@ -677,7 +682,7 @@ class Converter:
 
         # now, mark the right pages
         for page in cv.pages: page.skip_parsing = True
-        for i in page_indexes: 
+        for i in page_indexes:
             cv.pages[i].skip_parsing = False
 
         # parse pages and serialize data for further processing
@@ -690,22 +695,22 @@ class Converter:
     @staticmethod
     def _page_indexes(start, end, pages, pdf_len):
         '''Parsing arguments.'''
-        if pages: 
+        if pages:
             indexes = [int(x) for x in pages]
         else:
             end = end or pdf_len
             s = slice(int(start), int(end))
             indexes = range(pdf_len)[s]
-        
+
         return indexes
 
-    
+
     @staticmethod
     def _color_output(msg): return f'\033[1;36m{msg}\033[0m'
 
 
-class ConversionException(Exception): 
+class ConversionException(Exception):
     pass
 
-class MakedocxException(ConversionException): 
+class MakedocxException(ConversionException):
     pass

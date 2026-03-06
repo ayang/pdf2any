@@ -31,16 +31,16 @@ class Image(Element):
     '''Base image object.'''
 
     def __init__(self, raw:dict=None):
-        if raw is None: raw = {}        
+        if raw is None: raw = {}
         self.width = raw.get('width', 0.0)
         self.height = raw.get('height', 0.0)
 
         # source image bytes
         # - image bytes passed from PyMuPDF -> use it directly
-        # - base64 encoded string restored from json file -> encode to bytes and decode with base64 -> image bytes 
+        # - base64 encoded string restored from json file -> encode to bytes and decode with base64 -> image bytes
         image = raw.get('image', b'')
         self.image = image if isinstance(image, bytes) else base64.b64decode(image.encode())
-        
+
         super().__init__(raw)
 
 
@@ -52,7 +52,7 @@ class Image(Element):
 
     def from_image(self, image):
         '''Update with image block/span.
-        
+
         Args:
             image (Image): Target image block/span.
         '''
@@ -81,8 +81,8 @@ class Image(Element):
 
     def plot(self, page, color:tuple):
         '''Plot image bbox with diagonal lines (for debug purpose).
-        
-        Args: 
+
+        Args:
             page (fitz.Page): Plotting page.
         '''
         x0, y0, x1, y1 = self.bbox
@@ -94,7 +94,7 @@ class Image(Element):
     def make_docx(self, paragraph):
         '''Add image span to a docx paragraph.'''
         # add image
-        docx.add_image(paragraph, BytesIO(self.image), self.bbox.x1-self.bbox.x0, self.bbox.y1-self.bbox.y0)
+        docx.add_image(paragraph, BytesIO(self.image), self.bbox.x0, self.bbox.y0, self.bbox.x1-self.bbox.x0, self.bbox.y1-self.bbox.y0)
 
 
     def make_html(self, paragraph, **kwargs):

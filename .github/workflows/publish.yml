@@ -44,14 +44,15 @@ jobs:
       - name: Build package
         run: |
           echo ${GITHUB_REF#refs/tags/v} > version.txt
-          python setup.py sdist --formats=gztar,zip
-          python setup.py bdist_wheel
+          pip install build
+          python -m build
 
       # test wheel file locally
       - name: Test package
         run: |
           pip install ./dist/*.whl
           cd test
+          pip install pytest opencv-python-headless
           pytest -v test.py::TestConversion
 
       # upload the artifacts for further jobs

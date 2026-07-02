@@ -1,38 +1,81 @@
-# pdf2docx
+# pdf2any
 
-# About this fork
+![python-version](https://img.shields.io/badge/python-%3E=3.10-green.svg)
 
-- convert to html [√]
-- page header and footer [√]
+**PDF to DOCX, HTML, and Markdown converter — extract text, tables, and images from PDFs.**
 
-# pdf2docx
+## Features
 
-![python-version](https://img.shields.io/badge/python->=3.6-green.svg)
-![pypi-downloads](https://img.shields.io/pypi/dm/pdf2docx)
+- Convert PDF to **DOCX** (Word documents with full formatting)
+- Convert PDF to **HTML** (preserves layout, tables and images)
+- Convert PDF to **Markdown** (clean, readable text with tables)
+- Preserve document structure: paragraphs, tables, images, text styling
+- Extract tables from PDFs
+- Multi-processing support for large documents
+- Command-line and Python API interfaces
 
-## ⚠️ Project Status
+## Installation
 
-**pdf2docx is no longer actively maintained by Artifex.**
+```bash
+pip install pdf2any
+```
 
-The repository will remain available and has been **relicensed under the MIT License** so that the community can freely use, fork, and maintain the project.
+## Quick Start
 
-Pull requests from the community are welcome, but [Artifex](https://artifex.com) no longer provides active development or maintenance.
+### Command Line
 
----
+```bash
+# Convert PDF to DOCX
+pdf2any convert input.pdf output.docx
 
-If you are looking for a **full-featured PDF processing library**, consider using [PyMuPDF](https://github.com/pymupdf/PyMuPDF) or [MuPDF.NET](https://github.com/ArtifexSoftware/MuPDF.NET).
+# Convert PDF to HTML
+pdf2any convert-html input.pdf output.html
+
+# Convert PDF to Markdown (no page breaks)
+pdf2any convert-md input.pdf output.md --nopage_break
+
+# Convert specific pages
+pdf2any convert input.pdf output.docx --pages=1,3,5
+```
+
+### Python API
+
+```python
+from pdf2any import Converter
+
+# Convert to DOCX
+cv = Converter("input.pdf")
+cv.convert("output.docx")
+
+# Convert to HTML (no page breaks)
+cv.convert_html("output.html", page_break=False)
+
+# Convert to Markdown
+cv.convert_md("output.md", page_break=False)
+
+# Extract tables
+tables = cv.extract_tables()
+cv.close()
+```
+
+### Key Options
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--pages` | Specific pages to convert (e.g. `1,3,5`) | All |
+| `--nopage_break` | Remove page separators in output | `False` |
+| `--remove_header_footer` | Remove headers and footers | `False` |
+| `--multi_processing` | Enable parallel processing | `False` |
 
 ## Documentation
 
-- [Installation](https://pdf2docx.readthedocs.io/en/latest/installation.html)
-- [Quickstart](https://pdf2docx.readthedocs.io/en/latest/quickstart.html)
-    - [Convert PDF](https://pdf2docx.readthedocs.io/en/latest/quickstart.convert.html)
-    - [Extract table](https://pdf2docx.readthedocs.io/en/latest/quickstart.table.html)
-    - [Command Line Interface](https://pdf2docx.readthedocs.io/en/latest/quickstart.cli.html)
-    - [Graphic User Interface](https://pdf2docx.readthedocs.io/en/latest/quickstart.gui.html)
-- [Technical Documentation (In Chinese)](https://pdf2docx.readthedocs.io/en/latest/techdoc.html)
-- [API Documentation](https://pdf2docx.readthedocs.io/en/latest/modules.html)
+- [Installation](https://pdf2any.readthedocs.io/en/latest/installation.html)
+- [Quickstart](https://pdf2any.readthedocs.io/en/latest/quickstart.html)
+  - [Convert PDF](https://pdf2any.readthedocs.io/en/latest/quickstart.convert.html)
+  - [Extract table](https://pdf2any.readthedocs.io/en/latest/quickstart.table.html)
+  - [Command Line Interface](https://pdf2any.readthedocs.io/en/latest/quickstart.cli.html)
+- [API Documentation](https://pdf2any.readthedocs.io/en/latest/modules.html)
 
-## Sample
+## License
 
-![sample_compare.png](https://s1.ax1x.com/2020/08/04/aDryx1.png)
+MIT License — see [LICENSE](LICENSE) for details.

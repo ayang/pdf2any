@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-'''Collection of :py:class:`~pdf2docx.page.Page` instances.'''
+'''Collection of :py:class:`~pdf2any.page.Page` instances.'''
 
 from collections import Counter
 import re

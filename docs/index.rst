@@ -1,14 +1,14 @@
 .. include:: header.rst
 
-Welcome to pdf2docx
+Welcome to pdf2any
 ====================================
 
-:title:`pdf2docx` is a **Python** library
+:title:`pdf2any` is a **Python** library
 to extract data from **PDF** with PyMuPDF_, parse layout with rule, and
 generate **docx** files with ``python-docx``.
 
 
-:title:`pdf2docx` is hosted on `GitHub <https://github.com/ArtifexSoftware/pdf2docx>`_ and registered on `PyPI <https://pypi.org/project/pdf2docx/>`_.
+:title:`pdf2any` is hosted on `GitHub <https://github.com/ArtifexSoftware/pdf2any>`_ and registered on `PyPI <https://pypi.org/project/pdf2any/>`_.
 
 ----
 
@@ -48,7 +48,7 @@ Indices and tables
    document.addEventListener('DOMContentLoaded', function() {
        const canonical = document.createElement('link');
        canonical.rel = 'canonical';
-       canonical.href = 'https://pdf2docx.readthedocs.io';
+       canonical.href = 'https://pdf2any.readthedocs.io';
        document.head.appendChild(canonical);
    });
    </script>

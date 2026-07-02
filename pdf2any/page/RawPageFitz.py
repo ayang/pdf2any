@@ -73,8 +73,8 @@ class RawPageFitz(RawPage):
         text_blocks = raw.get('blocks', [])
 
         # potential UnicodeDecodeError issue when trying to filter hidden text:
-        # https://github.com/dothinking/pdf2docx/issues/144
-        # https://github.com/dothinking/pdf2docx/issues/155
+        # https://github.com/dothinking/pdf2any/issues/144
+        # https://github.com/dothinking/pdf2any/issues/155
         try:
             spans = self.page_engine.get_texttrace()
         except SystemError:

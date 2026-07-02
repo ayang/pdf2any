@@ -3,7 +3,7 @@
 Installation
 ====================
 
-``pdf2docx`` can be installed from either PyPI or the source code.
+``pdf2any`` can be installed from either PyPI or the source code.
 
 
 Install from PyPI
@@ -11,28 +11,28 @@ Install from PyPI
 
 Type the command below for a new installation::
 
-  $ pip install pdf2docx
+  $ pip install pdf2any
 
 Or, upgrade this library with::
 
-  $ pip install --upgrade pdf2docx
+  $ pip install --upgrade pdf2any
 
 
 Install from source code remotely
 --------------------------------------
 
-Install ``pdf2docx`` directly from the ``master`` branch::
+Install ``pdf2any`` directly from the ``master`` branch::
 
-  $ pip install git+git://github.com/ArtifexSoftware/pdf2docx.git@master --upgrade
+  $ pip install git+git://github.com/ArtifexSoftware/pdf2any.git@master --upgrade
 
 .. note::
-  In this way, ``pdf2docx`` might have a higher version than PyPI, which is not released yet.
+  In this way, ``pdf2any`` might have a higher version than PyPI, which is not released yet.
 
 
 Install from source code locally
 ---------------------------------------
 
-Clone or download `pdf2docx <https://github.com/ArtifexSoftware/pdf2docx>`_, navigate to the root directory and run::
+Clone or download `pdf2any <https://github.com/ArtifexSoftware/pdf2any>`_, navigate to the root directory and run::
 
   $ python setup.py install 
 
@@ -46,7 +46,7 @@ Uninstall
 
 ::
 
-  $ pip uninstall pdf2docx
+  $ pip uninstall pdf2any
 
 
 .. include:: footer.rst

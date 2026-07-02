@@ -3,13 +3,13 @@
 CURDIR		:=$(shell pwd)
 OUTPUTDIR	:=$(CURDIR)/outputs
 
-.PHONY: test pdf2docx docx2pdf check clean
+.PHONY: test pdf2any docx2pdf check clean
 
-# test: clean pdf2docx docx2pdf check
-test: clean pdf2docx
+# test: clean pdf2any docx2pdf check
+test: clean pdf2any
 
 
-pdf2docx: 
+pdf2any: 
 	@if [ -n "$(TESTCASE)" ] ; then \
 		pytest -v test.py::TestConversion::$(TESTCASE) --cov="$(SOURCEDIR)" --cov-report=xml ; \
 	else \

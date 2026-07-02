@@ -1,6 +1,6 @@
-# pdf2docx documentation
+# pdf2any documentation
 
-Welcome to the **pdf2docx** documentation. This documentation relies on [Sphinx](https://www.sphinx-doc.org/en/master/) to publish HTML docs from markdown files written with [restructured text](https://en.wikipedia.org/wiki/ReStructuredText) (RST).
+Welcome to the **pdf2any** documentation. This documentation relies on [Sphinx](https://www.sphinx-doc.org/en/master/) to publish HTML docs from markdown files written with [restructured text](https://en.wikipedia.org/wiki/ReStructuredText) (RST).
 
 
 ## Sphinx version

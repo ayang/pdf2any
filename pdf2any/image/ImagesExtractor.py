@@ -134,7 +134,7 @@ class ImagesExtractor:
         # as shown in issue-123.
         # It's still inconvenient to extract the original alpha/mask image, as a compromise,
         # extract the equivalent image by clipping the union page region for now.
-        # https://github.com/dothinking/pdf2docx/issues/123
+        # https://github.com/dothinking/pdf2any/issues/123
 
         # step 1: collect images: [(bbox, item, image_rotation), ..., ]
         ic = Collection()

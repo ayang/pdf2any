@@ -1,5 +1,5 @@
 '''
-Load :py:class:`~pdf2docx.page.RawPage` with specified pdf engine, 
+Load :py:class:`~pdf2any.page.RawPage` with specified pdf engine, 
 e.g. PyMuPDF, pdfminer.six. For now, only PyMuPDF is implemented.
 '''
 

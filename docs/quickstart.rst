@@ -3,7 +3,7 @@
 Quickstart
 =============
 
-``pdf2docx`` can be used as either a Python library or a CLI tool. In addition, it has a simple GUI.
+``pdf2any`` can be used as either a Python library or a CLI tool. In addition, it has a simple GUI.
 
 
 .. toctree::

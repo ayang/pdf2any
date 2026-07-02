@@ -7,7 +7,7 @@ Thanks @JoHnTsIm providing a ``tkinter`` based user interface.
 
 To launch the GUI::
 
-    $ pdf2docx gui
+    $ pdf2any gui
 
 
 .. image:: images/pdf-converter.png

@@ -268,7 +268,7 @@ class Lines(ElementCollection):
 
         # otherwise, set tab stop option for each line
         # Note: it might need more than one tab stops
-        # https://github.com/dothinking/pdf2docx/issues/157
+        # https://github.com/dothinking/pdf2any/issues/157
         ref = block.bbox[idx0]
         for i, line in enumerate(self._instances):
             # left indentation implemented with tab

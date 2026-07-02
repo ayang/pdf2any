@@ -1,10 +1,10 @@
-'''Entry for ``pdf2docx`` command line.'''
+'''Entry for ``pdf2any`` command line.'''
 import logging
 from .converter import Converter
 
 
 class PDF2DOCX:
-    '''Command line interface for ``pdf2docx``.'''
+    '''Command line interface for ``pdf2any``.'''
 
     @staticmethod
     def convert(pdf_file:str,
@@ -26,7 +26,7 @@ class PDF2DOCX:
             kwargs (dict) : Configuration parameters.
 
         .. note::
-            Refer to :py:meth:`~pdf2docx.converter.Converter.convert` for detailed description
+            Refer to :py:meth:`~pdf2any.converter.Converter.convert` for detailed description
             on above arguments.
         '''
         # index starts from zero or one
@@ -61,7 +61,7 @@ class PDF2DOCX:
             kwargs (dict) : Configuration parameters.
 
         .. note::
-            Refer to :py:meth:`~pdf2docx.converter.Converter.convert` for detailed description on above arguments.
+            Refer to :py:meth:`~pdf2any.converter.Converter.convert` for detailed description on above arguments.
         '''
         # index starts from zero or one
         if isinstance(pages, int): pages = [pages] # in case --pages=1
@@ -93,7 +93,7 @@ class PDF2DOCX:
             kwargs (dict) : Configuration parameters.
 
         .. note::
-            Refer to :py:meth:`~pdf2docx.converter.Converter.convert_md` for detailed description on above arguments.
+            Refer to :py:meth:`~pdf2any.converter.Converter.convert_md` for detailed description on above arguments.
         '''
         # index starts from zero or one
         if isinstance(pages, int): pages = [pages] # in case --pages=1

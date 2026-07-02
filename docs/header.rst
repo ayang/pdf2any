@@ -1,6 +1,6 @@
 .. meta::
    :author: Artifex
-   :description: pdf2docx is a Python library to extract data from PDF with PyMuPDF, parse layout with rule, and generate docx file with python-docx
+   :description: pdf2any is a Python library to extract data from PDF with PyMuPDF, parse layout with rule, and generate docx file with python-docx
    :keywords: PDF Text Extraction, PDF Image Extraction, PDF Conversion, PDF Tables
 
 

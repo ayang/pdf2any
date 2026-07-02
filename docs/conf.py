@@ -13,12 +13,12 @@
 import os
 import sys
 import datetime
-sys.path.insert(0, os.path.abspath("../pdf2docx/"))
+sys.path.insert(0, os.path.abspath("../pdf2any/"))
 
 
 # -- Project information -----------------------------------------------------
 
-project = 'pdf2docx'
+project = 'pdf2any'
 thisday = datetime.date.today()
 copyright = str(thisday.year) + ", Artifex"
 author = 'Artifex Software, Inc.'
@@ -50,9 +50,9 @@ extensions = [
     'sphinx_markdown_builder'
 ]
 
-markdown_http_base = "https://pdf2docx.readthedocs.io/en/latest/markdown"
+markdown_http_base = "https://pdf2any.readthedocs.io/en/latest/markdown"
 
-apidoc_module_dir = '../pdf2docx'
+apidoc_module_dir = '../pdf2any'
 apidoc_output_dir = 'api'
 apidoc_excluded_paths = []
 apidoc_separate_modules = True
@@ -96,7 +96,7 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
-latex_documents = [("index", "pdf2docx.tex", "pdf2docx Documentation", "Artifex", "manual")]
+latex_documents = [("index", "pdf2any.tex", "pdf2any Documentation", "Artifex", "manual")]
 # The name of an image file (relative to this directory) to place at the top of
 # the title page.
 #latex_logo = "images/pymupdf-logo.png"
@@ -121,7 +121,7 @@ latex_domain_indices = True
 # Grouping the document tree into PDF files. List of tuples
 # (source start file, target name, title, author).
 
-pdf_documents = [("index", "pdf2docx", "pdf2docx manual", "Artifex")]
+pdf_documents = [("index", "pdf2any", "pdf2any manual", "Artifex")]
 
 # A comma-separated list of custom stylesheets. Example:
 # pdf_stylesheets = ["sphinx", "bahnschrift", "a4"]

@@ -1,7 +1,7 @@
-pdf2docx
+pdf2any
 ========
 
 .. toctree::
    :maxdepth: 4
 
-   pdf2docx
+   pdf2any

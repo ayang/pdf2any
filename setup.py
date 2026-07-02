@@ -3,7 +3,7 @@
 import os
 from setuptools import find_packages, setup
 
-DESCRIPTION = 'Open source Python library converting pdf to docx.'
+DESCRIPTION = 'Open source Python library converting PDF to docx, HTML, and Markdown.'
 EXCLUDE_FROM_PACKAGES = ["build", "dist", "test"]
 
 
@@ -36,9 +36,9 @@ def load_requirements(fname):
 
 
 setup(
-    name="pdf2docx",
+    name="pdf2any",
     version=get_version("version.txt"),
-    keywords=["pdf-to-word", "pdf-to-docx"],
+    keywords=["pdf-to-word", "pdf-to-docx", "pdf-to-html", "pdf-to-markdown", "pdf-converter"],
     description=DESCRIPTION,
     long_description=load_long_description("README.md"),
     long_description_content_type="text/markdown",
@@ -53,6 +53,6 @@ setup(
     python_requires=">=3.10",
     entry_points={
         "console_scripts": [
-            "pdf2docx=pdf2docx.main:main"
+            "pdf2any=pdf2any.main:main"
             ]},
 )

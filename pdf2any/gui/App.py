@@ -1,4 +1,4 @@
-'''Main window for ``pdf2docx`` graphic user interface.'''
+'''Main window for ``pdf2any`` graphic user interface.'''
 
 import sys
 from tkinter import Tk, messagebox

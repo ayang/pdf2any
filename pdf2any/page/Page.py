@@ -2,25 +2,25 @@
 
 '''Page object parsed with PDF raw dict.
 
-In addition to base structure described in :py:class:`~pdf2docx.page.RawPage`,
+In addition to base structure described in :py:class:`~pdf2any.page.RawPage`,
 some new features, e.g. sections, table block, are also included.
 Page elements structure:
 
-* :py:class:`~pdf2docx.page.Page` >> :py:class:`~pdf2docx.layout.Section` >> :py:class:`~pdf2docx.layout.Column`
-    * :py:class:`~pdf2docx.layout.Blocks`
-        * :py:class:`~pdf2docx.text.TextBlock` >>
-          :py:class:`~pdf2docx.text.Line` >>
-          :py:class:`~pdf2docx.text.TextSpan` / :py:class:`~pdf2docx.image.ImageSpan` >>
-          :py:class:`~pdf2docx.text.Char`
-        * :py:class:`~pdf2docx.table.TableBlock` >>
-          :py:class:`~pdf2docx.table.Row` >>
-          :py:class:`~pdf2docx.table.Cell`
-            * :py:class:`~pdf2docx.layout.Blocks`
-            * :py:class:`~pdf2docx.shape.Shapes`
-    * :py:class:`~pdf2docx.shape.Shapes`
-        * :py:class:`~pdf2docx.shape.Shape.Stroke`
-        * :py:class:`~pdf2docx.shape.Shape.Fill`
-        * :py:class:`~pdf2docx.shape.Shape.Hyperlink`
+* :py:class:`~pdf2any.page.Page` >> :py:class:`~pdf2any.layout.Section` >> :py:class:`~pdf2any.layout.Column`
+    * :py:class:`~pdf2any.layout.Blocks`
+        * :py:class:`~pdf2any.text.TextBlock` >>
+          :py:class:`~pdf2any.text.Line` >>
+          :py:class:`~pdf2any.text.TextSpan` / :py:class:`~pdf2any.image.ImageSpan` >>
+          :py:class:`~pdf2any.text.Char`
+        * :py:class:`~pdf2any.table.TableBlock` >>
+          :py:class:`~pdf2any.table.Row` >>
+          :py:class:`~pdf2any.table.Cell`
+            * :py:class:`~pdf2any.layout.Blocks`
+            * :py:class:`~pdf2any.shape.Shapes`
+    * :py:class:`~pdf2any.shape.Shapes`
+        * :py:class:`~pdf2any.shape.Shape.Stroke`
+        * :py:class:`~pdf2any.shape.Shape.Fill`
+        * :py:class:`~pdf2any.shape.Shape.Hyperlink`
 
 ::
 

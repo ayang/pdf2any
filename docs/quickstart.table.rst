@@ -5,7 +5,7 @@ Extract table
 
 ::
 
-    from pdf2docx import Converter
+    from pdf2any import Converter
 
     pdf_file = '/path/to/sample.pdf'
 

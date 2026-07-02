@@ -20,7 +20,7 @@ from .page.Pages import Pages
 # 1.19.0 <= v <= 1.23.8, or v>=1.23.16
 v = list(map(int, fitz.VersionBind.split(".")))
 if v < [1,19,0] or [1,23,8]<v<[1,23,16]:
-    raise SystemExit("1.19.0 <= PyMuPDF <= 1.23.8, or PyMuPDF>=1.23.16 is required for pdf2docx.")
+    raise SystemExit("1.19.0 <= PyMuPDF <= 1.23.8, or PyMuPDF>=1.23.16 is required for pdf2any.")
 
 # logging
 logging.basicConfig(
@@ -590,7 +590,7 @@ class Converter:
             pages (list, optional): Range of page indexes. Defaults to None.
             kwargs (dict, optional): Configuration parameters. Defaults to None.
 
-        Refer to :py:meth:`~pdf2docx.converter.Converter.default_settings` for detail of
+        Refer to :py:meth:`~pdf2any.converter.Converter.default_settings` for detail of
         configuration parameters.
 
         .. note::
@@ -638,7 +638,7 @@ class Converter:
             pages (list, optional): Range of page indexes. Defaults to None.
             kwargs (dict, optional): Configuration parameters. Defaults to None.
 
-        Refer to :py:meth:`~pdf2docx.converter.Converter.default_settings` for detail of
+        Refer to :py:meth:`~pdf2any.converter.Converter.default_settings` for detail of
         configuration parameters.
 
         .. note::
@@ -690,7 +690,7 @@ class Converter:
             pages (list, optional): Range of page indexes. Defaults to None.
             kwargs (dict, optional): Configuration parameters. Defaults to None.
 
-        Refer to :py:meth:`~pdf2docx.converter.Converter.default_settings` for detail of
+        Refer to :py:meth:`~pdf2any.converter.Converter.default_settings` for detail of
         configuration parameters.
 
         .. note::

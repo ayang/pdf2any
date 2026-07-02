@@ -231,7 +231,7 @@ def debug_plot(title:str, show=True):
 
     .. note::
         Prerequisite of the inner function: 
-            - the first argument is a :py:class:`~pdf2docx.page.BasePage` instance.
+            - the first argument is a :py:class:`~pdf2any.page.BasePage` instance.
             - the last argument is configuration parameters in ``dict`` type.
     '''
     def wrapper(func):

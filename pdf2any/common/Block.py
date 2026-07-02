@@ -105,7 +105,7 @@ class Block(Element):
     def parse_horizontal_spacing(self, bbox, *args):
         """Set left alignment, and calculate left space.
 
-        Override by :obj:`pdf2docx.text.TextBlock`.
+        Override by :obj:`pdf2any.text.TextBlock`.
 
         Args:
             bbox (fitz.rect): boundary box of this block.

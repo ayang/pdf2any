@@ -3,7 +3,7 @@
 # About this fork
 
 - convert to html [√]
-- page header and footer [TODO]
+- page header and footer [√]
 
 # pdf2docx
 

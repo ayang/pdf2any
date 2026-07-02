@@ -399,7 +399,7 @@ class TextSpan(Element):
 
         # font name
         font_name = self.font
-        rgb = RGBColor(*share.rgb_component(self.color))
+        rgb = RGBColor(*rgb_component(self.color))
         color = '#' + str(rgb)
 
         # font size

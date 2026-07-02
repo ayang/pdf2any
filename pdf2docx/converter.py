@@ -149,6 +149,7 @@ class Converter:
             'output_image_dir'               : None,   # output image directory
             'raw_exceptions'                 : False,  # Don't swallow exceptions
             'list_not_table'                 : True,   # Avoid treating bullet list as table.
+            'page_break'                     : True,   # insert page separators in html/md output if True
         }
 
     # -----------------------------------------------------------------------
@@ -377,6 +378,38 @@ class Converter:
         return page_htmls
 
 
+    def make_md_pages(self, **kwargs):
+        '''Create markdown content from parsed pages.
+
+        Returns:
+            list: A list of markdown strings, one per page.
+        '''
+        # check parsed pages
+        parsed_pages = list(filter(
+            lambda page: page.finalized, self._pages
+        ))
+        if not parsed_pages:
+            raise ConversionException('No parsed pages. Please parse page first.')
+
+        num_pages = len(parsed_pages)
+        md_pages = []
+        for i, page in enumerate(parsed_pages, start=1):
+            if not page.finalized: continue
+            pid = page.id + 1
+            logging.info('(%d/%d) Page %d', i, num_pages, pid)
+            try:
+                md_pages.append(page.make_md(**kwargs))
+            except Exception as e:
+                if kwargs.get('raw_exceptions'):
+                    raise
+                if not kwargs['debug'] and kwargs['ignore_page_error']:
+                    logging.error('Ignore page %d due to making page error: %s', pid, e)
+                else:
+                    raise MakedocxException(f'Error when make page {pid}: {e}')
+
+        return md_pages
+
+
     def make_html(self, html_filename=None, template_file=None, **kwargs):
         '''Step 4 of converting process: create html file with converted pages.
 
@@ -418,13 +451,62 @@ class Converter:
         body = []
         for i, page_html in enumerate(page_htmls):
             body.append(page_html)
-            body.append(f'<hr/>\n<div class="page-number">第 {i+1} 页</div>')
+            if kwargs.get('page_break', True):
+                body.append(f'<hr/>\n<div class="page-number">第 {i+1} 页</div>')
         html = template.replace('{{body}}', '\n'.join(body))
         if hasattr(html_filename, 'write'):
             html_filename.write(html)
         else:
             with open(html_filename, 'w', encoding='utf-8') as f:
                 f.write(html)
+
+
+    def make_md(self, md_filename=None, **kwargs):
+        '''Step 4 of converting process: create markdown file with converted pages.
+
+        Args:
+            md_filename (str, file-like): Markdown file to write.
+            kwargs (dict, optional): Configuration parameters.
+        '''
+        logging.info(self._color_output('[4/4] Creating pages...'))
+
+        if not md_filename:
+            raise ConversionException(
+                "No markdown file name. Please specify a markdown file name or a file-like object to write."
+            )
+
+        if hasattr(md_filename, 'write'):
+            filename = md_filename
+        else:
+            filename = md_filename or f'{self.filename_pdf[0:-len(".pdf")]}.md' if self.filename_pdf else "output.md"
+            if os.path.exists(filename): os.remove(filename)
+            filepath = Path(filename)
+            if kwargs.get('output_image_dir') is None:
+                kwargs['output_image_dir'] = filepath.parent / 'images'
+            else:
+                kwargs['output_image_dir'] = Path(kwargs['output_image_dir'])
+            kwargs['output_image_dir'].mkdir(parents=True, exist_ok=True)
+
+        # create page by page
+        md_pages = self.make_md_pages(**kwargs)
+
+        # assemble markdown
+        body_parts = []
+        for i, page_md in enumerate(md_pages):
+            body_parts.append(page_md)
+            if kwargs.get('page_break', True):
+                body_parts.append('')
+                body_parts.append(f'---')
+                body_parts.append(f'*第 {i+1} 页*')
+                body_parts.append('')
+
+        md_content = '\n'.join(body_parts)
+
+        if hasattr(md_filename, 'write'):
+            md_filename.write(md_content)
+        else:
+            with open(md_filename, 'w', encoding='utf-8') as f:
+                f.write(md_content)
 
 
     # -----------------------------------------------------------------------
@@ -584,11 +666,61 @@ class Converter:
             raise ConversionException('Multi-processing works for continuous pages '
                                     'specified by "start" and "end" only.')
 
+        # when no page break, also remove header/footer
+        if not settings.get('page_break', True):
+            settings['remove_header_footer'] = True
+
         # convert page by page
         if settings['multi_processing'] and False:
             self._convert_with_multi_processing(html_filename, start, end, **settings)
         else:
             self.parse(start, end, pages, **settings).make_html(html_filename, **settings)
+
+        logging.info('Terminated in %.2fs.', perf_counter()-t0)
+
+
+    def convert_md(self, md_filename: Union[str, IO[AnyStr]] = None, start: int = 0, end: int = None, pages: list = None,
+                **kwargs):
+        """Convert specified PDF pages to Markdown file.
+
+        Args:
+            md_filename (str, file-like, optional): Markdown file to write. Defaults to None.
+            start (int, optional): First page to process. Defaults to 0, the first page.
+            end (int, optional): Last page to process. Defaults to None, the last page.
+            pages (list, optional): Range of page indexes. Defaults to None.
+            kwargs (dict, optional): Configuration parameters. Defaults to None.
+
+        Refer to :py:meth:`~pdf2docx.converter.Converter.default_settings` for detail of
+        configuration parameters.
+
+        .. note::
+            Change extension from ``pdf`` to ``md`` if ``md_filename`` is None.
+
+        .. note::
+            * ``start`` and ``end`` is counted from zero if ``--zero_based_index=True`` (by default).
+            * Start from the first page if ``start`` is omitted.
+            * End with the last page if ``end`` is omitted.
+
+        .. note::
+            ``pages`` has a higher priority than ``start`` and ``end``. ``start`` and ``end`` works only
+            if ``pages`` is omitted.
+        """
+        t0 = perf_counter()
+        logging.info('Start to convert %s', self.filename_pdf)
+        settings = self.default_settings
+        settings.update(kwargs)
+
+        # input check
+        if pages and settings['multi_processing']:
+            raise ConversionException('Multi-processing works for continuous pages '
+                                    'specified by "start" and "end" only.')
+
+        # when no page break, also remove header/footer
+        if not settings.get('page_break', True):
+            settings['remove_header_footer'] = True
+
+        # convert page by page
+        self.parse(start, end, pages, **settings).make_md(md_filename, **settings)
 
         logging.info('Terminated in %.2fs.', perf_counter()-t0)
 

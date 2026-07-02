@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-'''Definition of Image block objects. 
+'''Definition of Image block objects.
 
 **The raw image block will be merged into TextBlock > Line > Span.**
 '''
@@ -35,16 +35,16 @@ class ImageBlock(Image, Block):
         # add span to line
         image_line = Line()
         image_line.add(span)
-        
+
         # insert line to block
-        block = TextBlock()        
+        block = TextBlock()
         block.add(image_line)
 
         # NOTE: it's an image block even though in TextBlock type
-        block.set_inline_image_block() 
+        block.set_inline_image_block()
 
         return block
- 
+
 
     def store(self):
         '''Store ImageBlock instance in raw dict.'''
@@ -54,22 +54,22 @@ class ImageBlock(Image, Block):
         )
         return res
 
-    
+
     def plot(self, page):
         '''Plot image bbox with diagonal lines (for debug purpose).
-        
-        Args: 
+
+        Args:
             page (fitz.Page): pdf page to plot.
         '''
         super().plot(page, color=(1,0,0))
 
 
     def make_docx(self, p):
-        '''Create floating image behind text. 
-        
+        '''Create floating image behind text.
+
         Args:
             p (Paragraph): ``python-docx`` paragraph instance.
-        
+
         .. note::
             Inline image is created within TextBlock.
         '''
@@ -79,8 +79,20 @@ class ImageBlock(Image, Block):
         else:
             super().make_docx(p)
         return p
-    
+
 
     def make_html(self, p, **kwargs):
         super().make_html(p, **kwargs)
         return p
+
+
+    def make_md(self, p=None, **kwargs):
+        '''Create markdown image reference.
+
+        Args:
+            p: Ignored for markdown (returns string).
+
+        Returns:
+            str: Markdown image syntax string.
+        '''
+        return super().make_md(**kwargs)

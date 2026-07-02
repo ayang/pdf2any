@@ -2,18 +2,18 @@
 
 '''Page object parsed with PDF raw dict.
 
-In addition to base structure described in :py:class:`~pdf2docx.page.RawPage`, 
-some new features, e.g. sections, table block, are also included. 
+In addition to base structure described in :py:class:`~pdf2docx.page.RawPage`,
+some new features, e.g. sections, table block, are also included.
 Page elements structure:
 
-* :py:class:`~pdf2docx.page.Page` >> :py:class:`~pdf2docx.layout.Section` >> :py:class:`~pdf2docx.layout.Column`  
+* :py:class:`~pdf2docx.page.Page` >> :py:class:`~pdf2docx.layout.Section` >> :py:class:`~pdf2docx.layout.Column`
     * :py:class:`~pdf2docx.layout.Blocks`
-        * :py:class:`~pdf2docx.text.TextBlock` >> 
-          :py:class:`~pdf2docx.text.Line` >> 
+        * :py:class:`~pdf2docx.text.TextBlock` >>
+          :py:class:`~pdf2docx.text.Line` >>
           :py:class:`~pdf2docx.text.TextSpan` / :py:class:`~pdf2docx.image.ImageSpan` >>
           :py:class:`~pdf2docx.text.Char`
         * :py:class:`~pdf2docx.table.TableBlock` >>
-          :py:class:`~pdf2docx.table.Row` >> 
+          :py:class:`~pdf2docx.table.Row` >>
           :py:class:`~pdf2docx.table.Cell`
             * :py:class:`~pdf2docx.layout.Blocks`
             * :py:class:`~pdf2docx.shape.Shapes`
@@ -52,13 +52,13 @@ from ..image.ImageBlock import ImageBlock
 class Page(BasePage):
     '''Object representing the whole page, e.g. margins, sections.'''
 
-    def __init__(self, id:int=-1, 
+    def __init__(self, id:int=-1,
                         skip_parsing:bool=True,
                         width:float=0.0,
                         height:float=0.0,
-                        header:str=None, 
-                        footer:str=None, 
-                        margin:tuple=None, 
+                        header:str=None,
+                        footer:str=None,
+                        margin:tuple=None,
                         sections:Sections=None,
                         float_images:BaseCollection=None):
         '''Initialize page layout.
@@ -73,7 +73,7 @@ class Page(BasePage):
             margin (tuple, optional): Page margin. Defaults to None.
             sections (Sections, optional): Page contents. Defaults to None.
             float_images (BaseCollection, optional): Float images in th is page. Defaults to None.
-        ''' 
+        '''
         # page index
         self.id = id
         self.skip_parsing = skip_parsing
@@ -81,7 +81,7 @@ class Page(BasePage):
         # page size and margin
         super().__init__(width=width, height=height, margin=margin)
 
-        # flow structure: 
+        # flow structure:
         # Section -> Column -> Blocks -> TextBlock/TableBlock
         # TableBlock -> Row -> Cell -> Blocks
         self.sections = sections or Sections(parent=self)
@@ -89,7 +89,7 @@ class Page(BasePage):
         # page header, footer
         self.header = header or ''
         self.footer = footer or ''
-        
+
         # floating images are separate node under page
         self.float_images = float_images or BaseCollection()
 
@@ -97,7 +97,7 @@ class Page(BasePage):
 
 
     @property
-    def finalized(self): return self._finalized   
+    def finalized(self): return self._finalized
 
 
     def store(self):
@@ -124,7 +124,7 @@ class Page(BasePage):
         self.width = data.get('width', 0.0)
         self.height = data.get('height', 0.0)
         self.margin = data.get('margin', (0,) * 4)
-        
+
         # parsed layout
         self.sections.restore(data.get('sections', []))
         self.header = data.get('header', '')
@@ -150,20 +150,20 @@ class Page(BasePage):
 
     def extract_tables(self, **settings):
         '''Extract content from tables (top layout only).
-        
+
         .. note::
-            Before running this method, the page layout must be either parsed from source 
+            Before running this method, the page layout must be either parsed from source
             page or restored from parsed data.
         '''
         # table blocks
-        collections = []        
+        collections = []
         for section in self.sections:
             for column in section:
                 if settings['extract_stream_table']:
                     collections.extend(column.blocks.table_blocks)
                 else:
                     collections.extend(column.blocks.lattice_table_blocks)
-        
+
         # check table
         tables = [] # type: list[ list[list[str]] ]
         for table_block in collections:
@@ -173,12 +173,12 @@ class Page(BasePage):
 
 
     def make_docx(self, doc):
-        '''Set page size, margin, and create page. 
+        '''Set page size, margin, and create page.
 
         .. note::
-            Before running this method, the page layout must be either parsed from source 
+            Before running this method, the page layout must be either parsed from source
             page or restored from parsed data.
-        
+
         Args:
             doc (Document): ``python-docx`` document object
         '''
@@ -202,14 +202,14 @@ class Page(BasePage):
         # create flow layout: sections
         self.sections.make_docx(doc)
 
- 
+
     def make_html(self, doc=None, **kwargs):
-        '''Set page size, margin, and create page. 
+        '''Set page size, margin, and create page.
 
         .. note::
-            Before running this method, the page layout must be either parsed from source 
+            Before running this method, the page layout must be either parsed from source
             page or restored from parsed data.
-        
+
         Args:
             doc (etree.Element): ``lxml`` Element object
         '''
@@ -222,6 +222,31 @@ class Page(BasePage):
         # create flow layout: sections
         self.sections.make_html(page, **kwargs)
         return page
+
+
+    def make_md(self, **kwargs):
+        '''Create markdown content for this page.
+
+        .. note::
+            Before running this method, the page layout must be either parsed from source
+            page or restored from parsed data.
+
+        Returns:
+            str: Markdown formatted page content.
+        '''
+        parts = []
+
+        # page header as markdown heading (if it looks like a title)
+        if self.header.strip():
+            parts.append(f'<!-- Page {self.id + 1} -->')
+            parts.append('')
+
+        # create flow layout: sections
+        content = self.sections.make_md(**kwargs)
+        if content.strip():
+            parts.append(content)
+
+        return '\n'.join(parts)
 
 
     def _restore_float_images(self, raws:list):

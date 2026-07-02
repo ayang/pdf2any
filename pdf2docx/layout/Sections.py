@@ -14,13 +14,13 @@ from ..common import constants
 class Sections(BaseCollection):
 
     def restore(self, raws:list):
-        """Restore sections from source dicts."""        
+        """Restore sections from source dicts."""
         self.reset()
         for raw in raws:
             section = Section().restore(raw)
             self.append(section)
         return self
-    
+
 
     def parse(self, **settings):
         '''Parse layout under section level.'''
@@ -29,7 +29,7 @@ class Sections(BaseCollection):
 
 
     def make_docx(self, doc):
-        '''Create sections in docx.'''        
+        '''Create sections in docx.'''
         if not self: return
 
         # mark paragraph index before creating current page
@@ -48,9 +48,9 @@ class Sections(BaseCollection):
         section = self[0]
         if section.before_space > constants.MINOR_DIST:
             create_dummy_paragraph_for_section(section)
-        
+
         # create first section
-        if section.num_cols==2: 
+        if section.num_cols==2:
             doc.add_section(WD_SECTION.CONTINUOUS)
         section.make_docx(doc)
 
@@ -63,7 +63,7 @@ class Sections(BaseCollection):
 
             # set after space of last paragraph to define the vertical
             # position of current section
-            # NOTE: the after space doesn't work if last paragraph is 
+            # NOTE: the after space doesn't work if last paragraph is
             # image only (without any text). In this case, set after
             # space for the section break.
             p = doc.paragraphs[-2] # -1 is the section break
@@ -71,7 +71,7 @@ class Sections(BaseCollection):
                 p = doc.paragraphs[-1]
             pf = p.paragraph_format
             pf.space_after = Pt(section.before_space)
-            
+
             # section content
             section.make_docx(doc)
 
@@ -95,9 +95,24 @@ class Sections(BaseCollection):
             section.make_html(doc, **kwargs)
 
 
+    def make_md(self, **kwargs):
+        '''Create sections in markdown.
+
+        Returns:
+            str: Markdown formatted content.
+        '''
+        if not self:
+            return ''
+
+        parts = []
+        for section in self:
+            parts.append(section.make_md(**kwargs))
+        return '\n'.join(parts)
+
+
     def plot(self, page):
         '''Plot all section blocks for debug purpose.'''
-        for section in self: 
+        for section in self:
             for column in section:
                 column.plot(page, stroke=(1,1,0), width=1.5) # column bbox
                 column.blocks.plot(page) # blocks

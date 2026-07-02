@@ -2,7 +2,7 @@
 
 '''Section of Page.
 
-In most cases, one section per page. But in case multi-columns page, sections are used 
+In most cases, one section per page. But in case multi-columns page, sections are used
 to distinguish these different layouts.
 
 .. note::
@@ -28,7 +28,7 @@ from .Column import Column
 
 
 class Section(BaseCollection):
-    
+
     def __init__(self, space:int=0, columns:list=None, parent=None):
         """Initialize Section instance.
 
@@ -40,7 +40,7 @@ class Section(BaseCollection):
         self.space = space
         self.before_space = 0.0
         super().__init__(columns, parent)
-    
+
 
     @property
     def num_cols(self): return len(self)
@@ -55,7 +55,7 @@ class Section(BaseCollection):
             'before_space'  : self.before_space,
             'columns': super().store()
         }
-    
+
 
     def restore(self, raw:dict):
         '''Restore section from source dict.'''
@@ -73,12 +73,12 @@ class Section(BaseCollection):
 
     def parse(self, **settings):
         '''Parse section layout.'''
-        for column in self: column.parse(**settings)        
+        for column in self: column.parse(**settings)
         return self
-    
+
 
     def make_docx(self, doc):
-        '''Create section in docx. 
+        '''Create section in docx.
 
         Args:
             doc (Document): ``python-docx`` document object
@@ -91,15 +91,15 @@ class Section(BaseCollection):
         # add create each column
         for column in self:
             # column break to start new column
-            if column != self[0]: 
+            if column != self[0]:
                 doc.add_section(WD_SECTION.NEW_COLUMN)
 
             # make doc
             column.make_docx(doc)
 
-    
+
     def make_html(self, doc, **kwargs):
-        '''Create section in docx. 
+        '''Create section in docx.
 
         Args:
             doc (etree.Element): ``lxml`` Element object
@@ -108,3 +108,15 @@ class Section(BaseCollection):
         section = etree.SubElement(doc, 'div', {'class': 'section'})
         for column in self:
             column.make_html(section, **kwargs)
+
+
+    def make_md(self, **kwargs):
+        '''Create section in markdown.
+
+        Returns:
+            str: Markdown formatted section content.
+        '''
+        parts = []
+        for column in self:
+            parts.append(column.make_md(**kwargs))
+        return '\n'.join(parts)

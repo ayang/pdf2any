@@ -144,7 +144,7 @@ class TableBlock(Block):
                 if not cell: continue
                 cell.parse(**settings)
 
-    
+
     def clean_empty_rows_cols(self):
         # delete this method if not used
         empty_rows = []
@@ -179,7 +179,7 @@ class TableBlock(Block):
 
     def plot(self, page):
         '''Plot table block, i.e. cell/line/span, for debug purpose.
-        
+
         Args:
             page (fitz.Page): pdf page.
             content (bool): Plot text blocks contained in cells if True.
@@ -187,14 +187,14 @@ class TableBlock(Block):
             color (bool): Plot border stroke color if ``style=False``.
         '''
         for row in self._rows:
-            for cell in row:                
-                if not cell: continue  # ignore merged cells   
+            for cell in row:
+                if not cell: continue  # ignore merged cells
                 cell.plot(page)
 
 
     def make_docx(self, table):
         '''Create docx table.
-        
+
         Args:
             table (Table): ``python-docx`` table instance.
         '''
@@ -210,3 +210,41 @@ class TableBlock(Block):
         # self.clean_empty_rows_cols()
         for idx_row in range(self.num_rows):
             self._rows[idx_row].make_html(table, idx_row, **kwargs)
+
+
+    def make_md(self, **kwargs):
+        '''Create markdown table.
+
+        Returns:
+            str: Markdown formatted table string.
+        '''
+        if self.num_rows == 0:
+            return ''
+
+        # collect all rows as lists of cell texts
+        rows_data = []
+        max_cols = 0
+        for row in self._rows:
+            row_cells = row.make_md(**kwargs)
+            rows_data.append(row_cells)
+            max_cols = max(max_cols, len(row_cells))
+
+        if max_cols == 0:
+            return ''
+
+        # normalize all rows to have the same number of columns
+        for i, row_data in enumerate(rows_data):
+            if len(row_data) < max_cols:
+                rows_data[i] = row_data + [''] * (max_cols - len(row_data))
+
+        # build markdown table
+        lines = []
+        # header row
+        lines.append('| ' + ' | '.join(rows_data[0]) + ' |')
+        # separator row
+        lines.append('| ' + ' | '.join(['---'] * max_cols) + ' |')
+        # data rows
+        for row_data in rows_data[1:]:
+            lines.append('| ' + ' | '.join(row_data) + ' |')
+
+        return '\n'.join(lines)

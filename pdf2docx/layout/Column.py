@@ -55,3 +55,12 @@ class Column(Layout):
             doc (etree.Element): ``lxml`` Element object
         '''
         self.blocks.make_html(doc, **kwargs)
+
+
+    def make_md(self, **kwargs):
+        '''Create Section Column in markdown.
+
+        Returns:
+            str: Markdown formatted column content.
+        '''
+        return self.blocks.make_md(**kwargs)

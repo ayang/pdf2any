@@ -116,14 +116,14 @@ class Cell(Layout):
 
     def make_html(self, row, indexes, **kwargs):
         '''Set cell style and assign contents.
-        
+
         Args:
             row (Element): ``lxml`` Element instance.
             indexes (tuple): Row and column indexes, ``(i, j)``.
-        '''        
+        '''
         # set cell style, e.g. border, shading, cell width
         # self._set_style(table, indexes)
-        
+
         # ignore merged cells
         if not bool(self):  return
 
@@ -138,12 +138,28 @@ class Cell(Layout):
             docx_cell.set('rowspan', str(n_row))
         if n_col != 1:
             docx_cell.set('colspan', str(n_col))
-        
+
         if self.blocks:
             self.blocks.make_html(docx_cell, **kwargs)
 
 
-    def _set_style(self, table, indexes):
+    def make_md(self, **kwargs):
+        '''Create markdown table cell content.
+
+        Returns:
+            str: Markdown cell text (single line, pipe-escaped).
+        '''
+        if not bool(self):
+            return ''
+
+        if self.blocks:
+            text = self.blocks.make_md(**kwargs)
+            # Markdown tables require single-line cells: replace newlines with spaces
+            text = ' '.join(text.split())
+            # Escape pipe characters in cell content
+            text = text.replace('|', '\\|')
+            return text
+        return ''
         '''Set ``python-docx`` cell style, e.g. border, shading, width, row height,
         based on cell block parsed from PDF.
 

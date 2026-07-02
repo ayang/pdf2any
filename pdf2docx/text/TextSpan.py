@@ -392,6 +392,34 @@ class TextSpan(Element):
         etree.SubElement(paragraph, 'span', attrib=attribs).text = self.text
 
 
+    def make_md(self, **kwargs):
+        '''Create markdown inline text with formatting.
+
+        Returns:
+            str: Markdown formatted text string.
+        '''
+        text = self.text
+        if not text.strip():
+            return text
+
+        # apply markdown formatting
+        superscript = bool(self.flags & 2**0)
+        italic = bool(self.flags & 2**1)
+        bold = bool(self.flags & 2**4)
+
+        if bold and italic:
+            text = f'***{text}***'
+        elif bold:
+            text = f'**{text}**'
+        elif italic:
+            text = f'*{text}*'
+
+        if superscript:
+            text = f'^{text}^'
+
+        return text
+
+
     def _get_html_style(self):
         superscript = bool(self.flags & 2**0)
         italic = bool(self.flags & 2**1)

@@ -41,9 +41,9 @@ class TextBlock(Block):
     '''Text block.'''
     def __init__(self, raw:dict=None):
         raw = raw or {}
-        
+
         # remove key 'bbox' since it is calculated from contained lines
-        if 'bbox' in raw: raw.pop('bbox') 
+        if 'bbox' in raw: raw.pop('bbox')
         super().__init__(raw)
 
         # collect lines
@@ -72,9 +72,9 @@ class TextBlock(Block):
 
     @property
     def text_direction(self):
-        '''All lines contained in text block must have same text direction. 
+        '''All lines contained in text block must have same text direction.
         Otherwise, set normal direction.
-        '''            
+        '''
         return self.lines.text_direction
 
     @property
@@ -86,13 +86,13 @@ class TextBlock(Block):
 
         # no gap if single row
         if num==1: return None
-        
+
         # multi-lines block
         block_height = self.bbox[idx+2]-self.bbox[idx]
         f_max_row_height = lambda row: max(abs(line.bbox[idx+2]-line.bbox[idx]) for line in row)
         sum_row_height = sum(map(f_max_row_height, rows))
         return (block_height-sum_row_height) / (num-1)
-    
+
 
     @property
     def row_count(self):
@@ -109,7 +109,7 @@ class TextBlock(Block):
 
 
     def add(self, line_or_lines):
-        '''Add line or lines to TextBlock.'''        
+        '''Add line or lines to TextBlock.'''
         if isinstance(line_or_lines, (Lines, list, tuple)):
             for line in line_or_lines:
                 self.lines.append(line)
@@ -119,12 +119,12 @@ class TextBlock(Block):
 
     def plot(self, page):
         '''Plot block/line/span area for debug purpose.
-        
+
         Args:
             page (fitz.Page): pdf page.
         '''
         # block border in blue
-        blue = rgb_component_from_name('blue')   
+        blue = rgb_component_from_name('blue')
         super().plot(page, stroke=blue, dashes='[3.0 3.0] 0')
 
         # lines and spans
@@ -135,13 +135,13 @@ class TextBlock(Block):
 
             # span regions in random color
             for span in line.spans:
-                c = rgb_component_from_name('')                
+                c = rgb_component_from_name('')
                 span.plot(page, color=c)
 
 
     def parse_text_format(self, shapes):
         '''Parse text format with style represented by rectangles.
-        
+
         Args:
             shapes (Shapes): Shapes representing potential styles applied on blocks.
         '''
@@ -172,7 +172,7 @@ class TextBlock(Block):
                     lines_right_aligned_threshold:float,
                     lines_center_aligned_threshold:float):
         ''' Set horizontal spacing based on lines layout and page bbox.
-        
+
         * The general spacing is determined by paragraph alignment and indentation.
         * The detailed spacing of block lines is determined by tab stops.
 
@@ -183,20 +183,20 @@ class TextBlock(Block):
         # NOTE: in PyMuPDF CS, horizontal text direction is same with positive x-axis,
         # while vertical text is on the contrary, so use f = -1 here
         idx0, idx1, f = (0, 2, 1.0) if self.is_horizontal_text else (3, 1, -1.0)
-        
+
         # text alignment
-        self.alignment = self._parse_alignment(bbox, 
+        self.alignment = self._parse_alignment(bbox,
             (idx0, idx1, f),
             line_separate_threshold,
             lines_left_aligned_threshold,
             lines_right_aligned_threshold,
             lines_center_aligned_threshold)
 
-        # if still can't decide, set LEFT by default and ensure position by TAB stops        
+        # if still can't decide, set LEFT by default and ensure position by TAB stops
         if self.alignment == TextAlignment.NONE:
             self.alignment = TextAlignment.LEFT
             self.lines.parse_tab_stop(line_separate_threshold)
-        
+
         # adjust left/right indentation:
         # - set single side indentation if single line
         # - add minor space if multi-lines
@@ -206,20 +206,20 @@ class TextBlock(Block):
 
         elif row_count==1 and self.alignment == TextAlignment.RIGHT:
             self.left_space = 0
-        
+
         elif row_count==1 and self.alignment == TextAlignment.CENTER:
             self.left_space = 0
             self.right_space = 0
-        
+
         # parse line break
-        self.lines.parse_line_break(bbox, 
-            line_break_width_ratio, 
+        self.lines.parse_line_break(bbox,
+            line_break_width_ratio,
             line_break_free_space_ratio)
 
 
     def parse_relative_line_spacing(self):
-        '''Calculate relative line spacing, e.g. `spacing = 1.02`.  Relative line spacing is based on standard 
-        single line height, which is font-related. 
+        '''Calculate relative line spacing, e.g. `spacing = 1.02`.  Relative line spacing is based on standard
+        single line height, which is font-related.
 
         .. note::
             The line spacing could be updated automatically when changing the font size, while the layout might
@@ -234,10 +234,10 @@ class TextBlock(Block):
         # otherwise, calculate average line spacing
         idx = 1 if self.is_horizontal_text else 0
         block_height = self.bbox[idx+2]-self.bbox[idx]
-        
-        # An approximate expression: 
+
+        # An approximate expression:
         # standard_line_height * relative_line_spacing = block_height
-        rows = self.lines.group_by_physical_rows()        
+        rows = self.lines.group_by_physical_rows()
         fun_max_line_height = lambda line: max(span.line_height for span in line.spans)
         fun_max_row_height = lambda row: max(fun_max_line_height(line) for line in row)
         standard_height = sum(fun_max_row_height(row) for row in rows)
@@ -249,10 +249,10 @@ class TextBlock(Block):
 
 
     def parse_exact_line_spacing(self):
-        '''Calculate exact line spacing, e.g. `spacing = Pt(12)`. 
+        '''Calculate exact line spacing, e.g. `spacing = Pt(12)`.
 
-        The layout of pdf text block: line-space-line-space-line, excepting space before first line, 
-        i.e. space-line-space-line, when creating paragraph in docx. So, an average line height is 
+        The layout of pdf text block: line-space-line-space-line, excepting space before first line,
+        i.e. space-line-space-line, when creating paragraph in docx. So, an average line height is
         ``space+line``. Then, the height of first line can be adjusted by updating paragraph before-spacing.
 
         .. note::
@@ -261,23 +261,23 @@ class TextBlock(Block):
         '''
 
         # check text direction
-        idx = 1 if self.is_horizontal_text else 0       
+        idx = 1 if self.is_horizontal_text else 0
 
         bbox = self.lines[0].bbox   # first line
         first_line_height = bbox[idx+2] - bbox[idx]
         block_height = self.bbox[idx+2]-self.bbox[idx]
-        
+
         # average line spacing
         count = self.row_count # count of rows
         if count > 1:
             line_space = (block_height-first_line_height)/(count-1)
         else:
-            line_space = block_height        
+            line_space = block_height
         self.line_space = line_space
 
-        # since the line height setting in docx may affect the original bbox in pdf, 
+        # since the line height setting in docx may affect the original bbox in pdf,
         # it's necessary to update the before spacing:
-        # taking bottom left corner of first line as the reference point                
+        # taking bottom left corner of first line as the reference point
         self.before_space += first_line_height - line_space
 
         # if before spacing is negative, set to zero and adjust calculated line spacing accordingly
@@ -293,7 +293,7 @@ class TextBlock(Block):
 
         * https://python-docx.readthedocs.io/en/latest/user/text.html
         * https://python-docx.readthedocs.io/en/latest/api/enum/WdAlignParagraph.html#wdparagraphalignment
-        
+
         Args:
             p (Paragraph): ``python-docx`` paragraph instance.
 
@@ -308,7 +308,7 @@ class TextBlock(Block):
         before_spacing = max(round(self.before_space, 1), 0.0)
         after_spacing = max(round(self.after_space, 1), 0.0)
         pf.space_before = Pt(before_spacing)
-        pf.space_after = Pt(after_spacing)        
+        pf.space_after = Pt(after_spacing)
 
         # line spacing
         if self.line_space_type==0: # exact line spacing
@@ -321,30 +321,30 @@ class TextBlock(Block):
         # ------------------------------------
         # (1) set paragraph indentation
         # NOTE: different left spacing setting in case first line indent and hanging
-        left_space  = self.left_space        
+        left_space  = self.left_space
         if self.first_line_space<0: # in case hanging
-            left_space -= self.first_line_space           
-        
+            left_space -= self.first_line_space
+
         pf.left_indent  = Pt(left_space)
         pf.right_indent  = Pt(self.right_space)
         pf.first_line_indent = Pt(self.first_line_space)
 
         # (2) set alignment mode and adjust indentation:
-        # round indention on the opposite side to lower bound (inches), so it saves more space to 
+        # round indention on the opposite side to lower bound (inches), so it saves more space to
         # avoid unexpected line break
         if self.alignment==TextAlignment.LEFT:
-            pf.alignment = WD_ALIGN_PARAGRAPH.LEFT            
+            pf.alignment = WD_ALIGN_PARAGRAPH.LEFT
             # set tab stops to ensure line position
             for pos in self.tab_stops:
                 pf.tab_stops.add_tab_stop(Pt(self.left_space + pos))
-            
+
             # adjust right indent
             d = lower_round(self.right_space/constants.ITP, 1)
             pf.right_indent = Inches(d)
 
         elif self.alignment==TextAlignment.RIGHT:
             pf.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-            
+
             # adjust left indent
             d = lower_round(left_space/constants.ITP, 1)
             pf.left_indent = Inches(d)
@@ -392,17 +392,36 @@ class TextBlock(Block):
         return p
 
 
+    def make_md(self, **kwargs):
+        '''Create markdown paragraph for a text block.
+
+        Returns:
+            str: Markdown formatted paragraph text.
+        '''
+        lines_text = []
+        for line in self.lines:
+            lines_text.append(line.make_md(**kwargs))
+
+        text = ''.join(lines_text)
+
+        # handle alignment in markdown (limited support)
+        # Center alignment: add spaces on both sides (approximate)
+        # Right alignment is not standard markdown, skip
+
+        return text
+
+
     def _parse_alignment(self, bbox,
-                    text_direction_param:tuple, 
+                    text_direction_param:tuple,
                     line_separate_threshold:float,
                     lines_left_aligned_threshold:float,
                     lines_right_aligned_threshold:float,
                     lines_center_aligned_threshold:float):
         '''Detect text alignment mode based on layout of internal lines. It can't decide when only
         one line, in such case, the alignment mode is determined by externally check.
-        
+
         Args:
-            text_direction_param (tuple): ``(x0_index, x1_index, direction_factor)``, 
+            text_direction_param (tuple): ``(x0_index, x1_index, direction_factor)``,
                 e.g. ``(0, 2, 1)`` for horizontal text, while ``(3, 1, -1)`` for vertical text.
         '''
         # indexes based on text direction
@@ -421,9 +440,9 @@ class TextBlock(Block):
         self.right_space = d_right
 
         # --------------------------------------------------------------------------
-        # First priority: 
-        # significant distance exists in any two adjacent lines -> set NONE temporarily. 
-        # Assign left-align to it later and ensure exact position of each line by TAB stop. 
+        # First priority:
+        # significant distance exists in any two adjacent lines -> set NONE temporarily.
+        # Assign left-align to it later and ensure exact position of each line by TAB stop.
         # --------------------------------------------------------------------------
         rows = self.lines.group_by_physical_rows() # lines in each physical row
         for row in rows:
@@ -440,14 +459,14 @@ class TextBlock(Block):
         # |    ============    | -> center
         # |   ================ | -> left
         # |        =========== | -> right
-        def external_alignment():         
-            if abs(d_center) < lines_center_aligned_threshold: 
+        def external_alignment():
+            if abs(d_center) < lines_center_aligned_threshold:
                 return TextAlignment.CENTER
             elif d_left <= 0.25*W:
                 return TextAlignment.LEFT
             else:
                 return TextAlignment.RIGHT
-        
+
         if len(rows) == 1: return external_alignment()
 
         # --------------------------------------------------------------------------
@@ -477,7 +496,7 @@ class TextBlock(Block):
         elif center_aligned:
             alignment = TextAlignment.CENTER
 
-        elif left_aligned:            
+        elif left_aligned:
             alignment = TextAlignment.LEFT
 
         elif right_aligned:
@@ -486,9 +505,9 @@ class TextBlock(Block):
 
         else:
             alignment = TextAlignment.NONE
-        
+
         # set first line space in case left/justify
         if alignment==TextAlignment.LEFT or alignment==TextAlignment.JUSTIFY:
             self.first_line_space = rows[0][0].bbox[idx0] - rows[1][0].bbox[idx0]
-        
+
         return alignment

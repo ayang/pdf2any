@@ -146,3 +146,12 @@ class Block(Element):
 
     def make_html(self, *args, **kwargs):
         raise NotImplementedError
+
+
+    def make_md(self, *args, **kwargs):
+        '''Create markdown representation.
+
+        Raises:
+            NotImplementedError
+        '''
+        raise NotImplementedError

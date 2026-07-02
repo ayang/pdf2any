@@ -35,7 +35,7 @@ class Line(Element):
         if raw is None: raw = {}
 
         # writing mode
-        self.wmode = raw.get('wmode', 0) 
+        self.wmode = raw.get('wmode', 0)
 
         # update writing direction to rotated page CS
         if 'dir' in raw:
@@ -46,15 +46,15 @@ class Line(Element):
         # line break
         self.line_break = raw.get('line_break', 0) # don't break line by default
         self.tab_stop = raw.get('tab_stop', 0) # no TAB stop before the line by default
-        
+
         # remove key 'bbox' since it is calculated from contained spans
-        if 'bbox' in raw: raw.pop('bbox') 
+        if 'bbox' in raw: raw.pop('bbox')
         super().__init__(raw)
 
         # collect spans
-        self.spans = Spans(parent=self).restore(raw.get('spans', []))        
+        self.spans = Spans(parent=self).restore(raw.get('spans', []))
 
-    
+
     @property
     def text(self):
         '''Joining span text. Note image is translated to a placeholder ``<image>``.'''
@@ -124,7 +124,7 @@ class Line(Element):
 
     def add(self, span_or_list):
         '''Add span list to current Line.
-        
+
         Args:
             span_or_list (Span, Iterable): TextSpan or TextSpan list to add.
         '''
@@ -142,22 +142,22 @@ class Line(Element):
 
     def intersects(self, rect):
         '''Create new Line object with spans contained in given bbox.
-        
+
         Args:
             rect (fitz.Rect): Target bbox.
-        
+
         Returns:
             Line: The created Line instance.
         '''
         # add line directly if fully contained in bbox
         if rect.contains(self.bbox):
             return self.copy()
-        
+
         # new line with same text attributes
         line = Line({'wmode': self.wmode})
         line.dir = self.dir # update line direction relative to final CS
 
-        # further check spans in line        
+        # further check spans in line
         for span in self.spans:
             contained_span = span.intersects(rect)
             line.add(contained_span)
@@ -169,11 +169,11 @@ class Line(Element):
         '''Create docx line, i.e. a run in ``python-docx``.'''
         # tab stop before this line to ensure horizontal position
         # Note it might need more than one tabs if multi-tabs are set for current paragraph
-        if self.tab_stop: 
+        if self.tab_stop:
             for _ in range(self.tab_stop): p.add_run().add_tab()
 
         # create span -> run in paragraph
-        for span in self.spans: span.make_docx(p)            
+        for span in self.spans: span.make_docx(p)
 
         # line break
         if self.line_break: p.add_run('\n')
@@ -182,7 +182,26 @@ class Line(Element):
     def make_html(self, p, **kwargs):
         '''Create html line.'''
         # create span -> run in paragraph
-        for span in self.spans: span.make_html(p, **kwargs)            
+        for span in self.spans: span.make_html(p, **kwargs)
 
         # line break
         if self.line_break: etree.SubElement(p, 'br')
+
+
+    def make_md(self, **kwargs):
+        '''Create markdown line.
+
+        Returns:
+            str: Markdown formatted line text.
+        '''
+        parts = []
+        for span in self.spans:
+            parts.append(span.make_md(**kwargs))
+
+        line_text = ''.join(parts)
+
+        # line break
+        if self.line_break:
+            line_text += '  \n'
+
+        return line_text

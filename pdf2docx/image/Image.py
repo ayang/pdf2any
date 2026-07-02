@@ -109,3 +109,17 @@ class Image(Element):
             'width': '{}px'.format((x2-x1)*8/3),
             'height': '{}px'.format((y2-y1)*8/3)
         })
+
+
+    def make_md(self, **kwargs):
+        '''Create markdown image reference.
+
+        Returns:
+            str: Markdown image syntax string.
+        '''
+        hash = hashlib.md5(self.image).hexdigest()[:8]
+        filename = f'images/{hash}.webp'
+        filepath = kwargs['output_image_dir'] / f'{hash}.webp'
+        image = PILImage.open(BytesIO(self.image))
+        image.save(filepath, format='webp')
+        return f'![image]({filename})'

@@ -56,11 +56,11 @@ class Row(Element):
 
     def make_docx(self, table, idx_row:int):
         '''Create row of docx table.
-        
+
         Args:
             table (Table): ``python-docx`` table instance.
             idx_row (int): Current row index.
-        '''  
+        '''
         # set row height
         docx_row = table.rows[idx_row]
 
@@ -78,10 +78,22 @@ class Row(Element):
         for idx_col in range(len(table.columns)):
             self._cells[idx_col].make_docx(table, (idx_row, idx_col))
 
-    
+
     def make_html(self, table, idx_row:int, **kwargs):
         '''Create row of html table.'''
         row = etree.SubElement(table, 'tr')
         # set cell style and contents
         for idx_col in range(len(self)):
             self._cells[idx_col].make_html(row, (idx_row, idx_col), **kwargs)
+
+
+    def make_md(self, **kwargs):
+        '''Create markdown table row.
+
+        Returns:
+            list: A list of cell text strings for this row.
+        '''
+        cells = []
+        for cell in self._cells:
+            cells.append(cell.make_md(**kwargs))
+        return cells
